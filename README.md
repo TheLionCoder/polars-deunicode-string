@@ -23,15 +23,12 @@ df: pl.DataFrame = pl.DataFrame(
 
 ```
 
-```
-
 _Let´s de-unicode and make lowercase the column "text":_
 
-```
 
 ```python
 result*df: pl.DataFrame = (
-df.lazy().with_columns([dunicode("text").name.prefix("decode*")]).collect()
+df.lazy().with_columns([dunicode("text").name.prefix("decode")]).collect()
 )
 print(result_df)
 
