@@ -10,28 +10,30 @@ pip install polars-deunicode-string
 
 ## Basic Example
 
-````python
-import polars-deunicos-string as dunicode
+```python
+import polars-deunicode-string as dunicode
 
 
 df: pl.DataFrame = pl.DataFrame(
     {
-        "text": ["Nariño", "Jose Fernando Ramírez Güiza", "Córdoba", "Hello World!", None],
+        "text": ["Nariño", "Jose Fernando Ramírez Güiza",
+                 "Córdoba", "Hello World!", None],
     }
 )
 
+```
 
-Let´s de-unicod and make lowercase the column "text":
+```
+
+_Let´s de-unicode and make lowercase the column "text":_
+
+```
+
 ```python
-
 result*df: pl.DataFrame = (
 df.lazy().with_columns([dunicode("text").name.prefix("decode*")]).collect()
 )
 print(result_df)
-```
-
-
-```bash
 
 shape: (4, 2)
 shape: (5, 2)
@@ -47,4 +49,3 @@ shape: (5, 2)
 │ null                        ┆ null                        │
 └─────────────────────────────┴─────────────────────────────┘
 ```
-````
