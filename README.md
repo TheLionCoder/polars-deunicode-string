@@ -1,6 +1,8 @@
 # polars-deunicode-string
 
-This is a simple polars-plugin that de-unicodes and makes a string lowercase.
+[![Crates.io](https://img.shields.io/crates/v/deunicode.svg)](https://crates.io/crates/deunicode)
+
+This is a simple polars-plugin that de-unicodes a string using the deunicode crate.
 
 ## Installation
 
@@ -25,7 +27,6 @@ df: pl.DataFrame = pl.DataFrame(
 
 _Let´s de-unicode and make lowercase the column "text":_
 
-
 ```python
 result*df: pl.DataFrame = (
 df.lazy().with_columns([dunicode("text").name.prefix("decode")]).collect()
@@ -39,10 +40,10 @@ shape: (5, 2)
 │ ---                         ┆ ---                         │
 │ str                         ┆ str                         │
 ╞═════════════════════════════╪═════════════════════════════╡
-│ Nariño                      ┆ narino                      │
-│ Jose Fernando Ramírez Güiza ┆ jose fernando ramirez guiza │
-│ Córdoba                     ┆ cordoba                     │
-│ Hello World!                ┆ hello world!                │
+│ Nariño                      ┆ Narino                      │
+│ Jose Fernando Ramírez Güiza ┆ Jose Fernando Ramirez Guiza │
+│ Córdoba                     ┆ Cordoba                     │
+│ Hello World!                ┆ Hello World!                │
 │ null                        ┆ null                        │
 └─────────────────────────────┴─────────────────────────────┘
 ```

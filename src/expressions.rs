@@ -10,7 +10,7 @@ fn decode_string(inputs: &[Series]) -> PolarsResult<Series> {
     let string: &StringChunked = inputs[0].str()?;
     let out: StringChunked =
         string.apply_into_string_amortized(|value: &str, output: &mut String| {
-            let decoded: String = deunicode(&value.trim().to_ascii_lowercase());
+            let decoded: String = deunicode(&value.trim());
             output.push_str(&decoded)
         });
     Ok(out.into_series())

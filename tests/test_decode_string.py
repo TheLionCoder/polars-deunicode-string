@@ -13,7 +13,7 @@ def test_decode_string():
     expected_df = pl.DataFrame(
         {
             "spanish": ["Bogotá", "1ra de Mayo", None, "Nariño", "Güiza"],
-            "normalized": ["bogota", "1ra de mayo", None, "narino", "guiza"],
+            "normalized": ["Bogota", "1ra de Mayo", None, "Narino", "Guiza"],
         }
     )
 
