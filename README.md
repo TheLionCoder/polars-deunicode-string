@@ -24,7 +24,7 @@ pip install polars-deunicode-string
 ## Basic Example
 
 ```python
-import polars-deunicode-string as dunicode
+import polars-deunicode-string as pl_deunicode
 
 
 df: pl.DataFrame = pl.DataFrame(
