@@ -48,7 +48,6 @@ df.lazy().with_columns([dunicode("text").name.prefix("decode")]).collect()
 )
 print(result_df)
 
-shape: (4, 2)
 shape: (5, 2)
 ┌─────────────────────────────┬─────────────────────────────┐
 │ text                        ┆ decode_text                 │
