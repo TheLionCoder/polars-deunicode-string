@@ -24,7 +24,7 @@ pip install polars-deunicode-string
 ## Basic Example
 
 ```python
-import polars-deunicode-string as pl_deunicode
+from polars-deunicode-string import decode_string
 
 
 df: pl.DataFrame = pl.DataFrame(
@@ -40,7 +40,7 @@ _Let´s de-unicode and make lowercase the column "text":_
 
 ```python
 result*df: pl.DataFrame = (
-df.lazy().with_columns([dunicode("text").name.prefix("decode")]).collect()
+df.lazy().with_columns([decode_string("text").name.prefix("decode")]).collect()
 )
 print(result_df)
 
