@@ -36,14 +36,6 @@ run: install
 run-release: install-release
 	source .venv/bin/activate && python run.py
 
-.PHONY: lint
-lint: .venv
-	source .venv/bin/activate && ruff check .
-
-.PHONY: fmt
-format: .venv
-	source .venv/bin/activate && ruff format .
-
 .PHONY: clean
 clean:
 	find . -type f -name "*py[co]" -delete
