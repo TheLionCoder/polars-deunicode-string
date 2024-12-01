@@ -10,8 +10,6 @@
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/polars-deunicode-string)](https://pypi.org/project/polars-deunicode-string/)
 [![PyPI - Format](https://img.shields.io/pypi/format/polars-deunicode-string)](https://pypi.org/project/polars-deunicode-string/)
 [![PyPI - Implementation](https://img.shields.io/pypi/implementation/polars-deunicode-string)](https://pypi.org/project/polars-deunicode-string/)
-[![PyPI - Implementation](https://img.shields.io/pypi/implementation/polars-deunicode-string)](https://pypi.org/project/polars-deunicode-string/)
-[![PyPI - Status](https://img.shields.io/pypi/status/polars-deunicode-string)](https://pypi.org/project/polars-deunicode-string/)
 
 This is a simple polars-plugin that de-unicodes a string using the deunicode crate.
 
