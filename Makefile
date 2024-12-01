@@ -3,7 +3,7 @@ SHELL=/bin/bash
 ## Install dependencies
 .PHONY: .venv
 .venv:
-	python -m venv .venv
+	python3 -m venv .venv
 	.venv/bin/pip install -r requirements.txt
 
 
