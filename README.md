@@ -1,4 +1,4 @@
-# polars-deunicode-string
+# :crab: polars-deunicode-string
 
 [![Crates.io](https://img.shields.io/crates/v/deunicode.svg)](https://crates.io/crates/deunicode)
 
@@ -13,13 +13,17 @@
 
 This is a simple polars-plugin that de-unicodes a string using the deunicode crate.
 
-## Installation
+---
+
+## :package: Installation
 
 ```bash
 pip install polars-deunicode-string
 ```
 
-## Basic Example
+---
+
+## :globe_with_meridians: Basic Example
 
 ```python
 from polars-deunicode-string import decode_string
