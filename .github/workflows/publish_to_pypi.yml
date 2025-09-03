@@ -40,6 +40,8 @@ jobs:
         with:
           toolchain: nightly-2025-08-01
           override: true
+      - name: Install rustfmt for nightly toolchain
+        run: rustup component add rustfmt
       - uses: mozilla-actions/sccache-action@v0.0.3
       - run: make .venv
       - run: make pre-commit
