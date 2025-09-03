@@ -1,19 +1,23 @@
 import polars as pl
-from polars_deunicode_string import decode_string
+import polars_deunicode_string as deunicode
 
 
 def test_decode_string():
     df = pl.DataFrame(
         {
-            "spanish": ["Bogotá", "1ra de Mayo", None, "Nariño", "Güiza"],
+            "name": ["Jhon", "María", "José", "Eva-lin"],
+            "city": ["Bogotá", "Tunja", "Medellín", "Nariño"],
         }
     )
-    result = df.with_columns(normalized=decode_string("spanish"))
+    result = df.select([
+       deunicode.decode_string(pl.col(pl.String))
+    ])
+
 
     expected_df = pl.DataFrame(
         {
-            "spanish": ["Bogotá", "1ra de Mayo", None, "Nariño", "Güiza"],
-            "normalized": ["Bogota", "1ra de Mayo", None, "Narino", "Guiza"],
+            "name": ["Jhon", "Maria", "Jose", "Eva-lin"],
+            "city": ["Bogota", "Tunja", "Medellin", "Narino"],
         }
     )
 

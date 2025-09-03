@@ -1,4 +1,4 @@
-# :crab: polars-deunicode-string
+# POLARS-DEUNICODE-STRING
 
 [![Crates.io](https://img.shields.io/crates/v/deunicode.svg)](https://crates.io/crates/deunicode)
 
@@ -15,7 +15,7 @@ This is a simple polars-plugin that de-unicodes a string using the deunicode cra
 
 ---
 
-## :package: Installation
+## Installation
 
 ```bash
 pip install polars-deunicode-string
@@ -23,39 +23,50 @@ pip install polars-deunicode-string
 
 ---
 
-## :globe_with_meridians: Basic Example
+## Basic Example
 
 ```python
-from polars-deunicode-string import decode_string
+
+import polars as pl
+import polars_deunicode_string as deunicode
 
 
-df: pl.DataFrame = pl.DataFrame(
+df = pl.DataFrame(
     {
-        "text": ["Nariño", "Jose Fernando Ramírez Güiza",
-                 "Córdoba", "Hello World!", None],
+        "name": ["Jhon", "María", "José", "Eva-lin"],
+        "city": ["Bogotá", "Tunja", "Medellín", "Nariño"],
     }
 )
+normalized_df = df.select([
+    deunicode.decode_string(pl.col(pl.String))
+])
+print(df)
+>>> Data:
 
-```
+shape: (4, 2)
+┌─────────┬──────────┐
+│ name    ┆ city     │
+│ ---     ┆ ---      │
+│ str     ┆ str      │
+╞═════════╪══════════╡
+│ Jhon    ┆ Bogotá   │
+│ María   ┆ Tunja    │
+│ José    ┆ Medellín │
+│ Eva-lin ┆ Nariño   │
+└─────────┴──────────┘
 
-_Let´s de-unicode and make lowercase the column "text":_
+print(normalized_df)
+>>> Normalized Data:
 
-```python
-result*df: pl.DataFrame = (
-df.lazy().with_columns([decode_string("text").name.prefix("decode")]).collect()
-)
-print(result_df)
-
-shape: (5, 2)
-┌─────────────────────────────┬─────────────────────────────┐
-│ text                        ┆ decode_text                 │
-│ ---                         ┆ ---                         │
-│ str                         ┆ str                         │
-╞═════════════════════════════╪═════════════════════════════╡
-│ Nariño                      ┆ Narino                      │
-│ Jose Fernando Ramírez Güiza ┆ Jose Fernando Ramirez Guiza │
-│ Córdoba                     ┆ Cordoba                     │
-│ Hello World!                ┆ Hello World!                │
-│ null                        ┆ null                        │
-└─────────────────────────────┴─────────────────────────────┘
+shape: (4, 2)
+┌─────────┬──────────┐
+│ name    ┆ city     │
+│ ---     ┆ ---      │
+│ str     ┆ str      │
+╞═════════╪══════════╡
+│ Jhon    ┆ Bogota   │
+│ Maria   ┆ Tunja    │
+│ Jose    ┆ Medellin │
+│ Eva-lin ┆ Narino   │
+└─────────┴──────────┘
 ```
