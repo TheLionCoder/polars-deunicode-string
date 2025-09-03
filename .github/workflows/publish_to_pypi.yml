@@ -39,7 +39,10 @@ jobs:
           
 
       - name: Set up Rust
-        run: rustup show
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: nightly
+          components: fmt, clippy
       - uses: mozilla-actions/sccache-action@v0.0.3
       - run: make .venv
       - run: make pre-commit
