@@ -41,7 +41,7 @@ jobs:
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          toolchain: nightly-2025-08-10
+          toolchain: nightly-2025-08-13
           components: fmt, clippy
       - uses: mozilla-actions/sccache-action@v0.0.3
       - run: make .venv
