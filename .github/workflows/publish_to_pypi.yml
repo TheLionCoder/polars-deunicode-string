@@ -54,7 +54,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: 👀 Display MakeFile content
-        run: cat MakeFile
+        run: cat Makefile
 
       - name: Run lints and tests
         # This now runs in the correct directory due to the 'defaults' key above
