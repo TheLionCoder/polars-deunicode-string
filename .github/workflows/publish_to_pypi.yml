@@ -12,13 +12,11 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-
   cancel-in-progress: true
 
 permissions:
   contents: read
 
-# Make sure CI fails on all warnings, including Clippy lints
 env:
   RUSTFLAGS: "-Dwarnings"
 
@@ -64,15 +62,15 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-
           args: --release --out dist --find-interpreter
           sccache: "true"
           manylinux: auto
+        working-directory: polars-deunicode-string # Add this line
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.target }}
-          path: dist
+          path: polars-deunicode-string/dist # And adjust the path here
 
   windows:
     runs-on: windows-latest
@@ -84,21 +82,20 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-
           architecture: ${{ matrix.target }}
 
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-
           args: --release --out dist --find-interpreter
           sccache: "true"
+        working-directory: polars-deunicode-string # Add this line
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-windows-${{ matrix.target }}
-          path: dist
+          path: polars-deunicode-string/dist # And adjust the path here
 
   macos:
     runs-on: macos-latest
@@ -114,14 +111,14 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-
           args: --release --out dist --find-interpreter
           sccache: "true"
+        working-directory: polars-deunicode-string # Add this line
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.target }}
-          path: dist
+          path: polars-deunicode-string/dist # And adjust the path here
 
   sdist:
     runs-on: ubuntu-latest
@@ -132,11 +129,12 @@ jobs:
         with:
           command: sdist
           args: --out dist
+        working-directory: polars-deunicode-string # Add this line
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
           name: sdist
-          path: dist
+          path: polars-deunicode-string/dist # And adjust the path here
 
   release:
     name: Release
@@ -145,11 +143,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write # IMPORTANT: mandatory for trusted publishing
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          # The artifacts are now in a subdirectory
+          path: dist
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
         with:
           command: upload
-          args: --non-interactive --skip-existing dist/*
+          # Adjust the path to the wheels
+          args: --non-interactive --skip-existing dist/*/*
