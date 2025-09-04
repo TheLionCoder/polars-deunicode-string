@@ -312,7 +312,7 @@ jobs:
           command: "--version"
 
       - name: Move packages to dist
-        run: find dist -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec mv {} dist/ \;
+        run: find dist -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec mv {} dist/ \
 
       - name: Publish to PyPI with a run step
         run: maturin upload --non-interactive --skip-existing dist/*
