@@ -17,29 +17,15 @@ concurrency:
 permissions:
   contents: read
 
-# Use a top-level env var for the project directory for consistency
-env:
-  PROJECT_DIR: .
-
 jobs:
   linux_tests:
     runs-on: ubuntu-latest
-    # Set the default working directory for all 'run' steps in this job
-    defaults:
-      run:
-        working-directory: ${{ env.PROJECT_DIR }}
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          path: polars-deunicode-string
-
-      - name: 👀 List files in workspace
-        run: ls -R
-        working-directory: .
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -53,11 +39,9 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - name: 👀 Display MakeFile content
-        run: cat Makefile
-
-      - name: Run lints and tests
-        # This now runs in the correct directory due to the 'defaults' key above
+      - name: Install, Lint, and Test
+        # These commands will now run in the repository root,
+        # where the Makefile is located.
         run: |
           make install
           make pre-commit
@@ -66,7 +50,6 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }} for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
-    # Run tests first before spending time on builds
     needs: [linux_tests]
     strategy:
       matrix:
@@ -102,14 +85,13 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: "true"
           manylinux: ${{ matrix.manylinux || 'auto' }}
-          # The 'with.working-directory' input is correct for actions
-          working-directory: ${{ env.PROJECT_DIR }}
+          # REMOVED: working-directory
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.target }}
-          path: ${{ env.PROJECT_DIR }}/dist
+          path: dist # CORRECTED: Path is now just 'dist'
 
   build_sdist:
     name: Build source distribution
@@ -124,13 +106,13 @@ jobs:
         with:
           command: sdist
           args: --out dist
-          working-directory: ${{ env.PROJECT_DIR }}
+          # REMOVED: working-directory
 
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
           name: sdist
-          path: ${{ env.PROJECT_DIR }}/dist
+          path: dist # CORRECTED: Path is now just 'dist'
 
   release:
     name: Release to PyPI
@@ -139,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write # Required for trusted publishing
+      id-token: write
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -147,7 +129,7 @@ jobs:
           path: dist
 
       - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
+        uses: PyO_3/maturin-action@v1
         with:
           command: upload
           args: --non-interactive --skip-existing dist/*/*
