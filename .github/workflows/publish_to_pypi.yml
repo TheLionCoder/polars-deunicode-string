@@ -149,9 +149,11 @@ jobs:
         with:
           pattern: wheels-*
           path: dist
-      - name: Install maturin
+      - name: Set up maturin
         uses: PyO3/maturin-action@v1
         with:
-          command: install
+          # Use a harmless command like --version to install maturin and add it to the PATH
+          command: "--version"
+
       - name: Publish to PyPI with a run step
         run: maturin upload --non-interactive --skip-existing dist/*
