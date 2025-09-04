@@ -19,7 +19,7 @@ permissions:
 
 # Use a top-level env var for the project directory for consistency
 env:
-  PROJECT_DIR: polars-deunicode-string
+  PROJECT_DIR: .
 
 jobs:
   linux_tests:
@@ -34,6 +34,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          path: polars-deunicode-string
+
+      - name: 👀 List files in workspace
+        run: ls -R
+        working-directory: .
 
       - name: Set up Python
         uses: actions/setup-python@v5
