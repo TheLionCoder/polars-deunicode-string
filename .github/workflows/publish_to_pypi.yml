@@ -149,8 +149,9 @@ jobs:
         with:
           pattern: wheels-*
           path: dist
-      - name: Publish to PyPI
+      - name: Install maturin
         uses: PyO3/maturin-action@v1
         with:
-          command: upload
-          args: --non-interactive --skip-existing *
+          command: install
+      - name: Publish to PyPI with a run step
+        run: maturin upload --non-interactive --skip-existing dist/*
