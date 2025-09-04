@@ -4,13 +4,15 @@ SHELL=/bin/bash
 .PHONY: .venv
 .venv:
 	python3 -m venv .venv
+
 	.venv/bin/pip install -r requirements.txt
 
 
 .PHONY: install
 install: .venv
 	unset CONDA_PREFIX && \
-	source .venv/bin/activate && maturin develop
+	source .venv/bin/activate && \
+	python3 -m pip install --upgrade pip && maturin develop
 
 .PHONY: install-release
 install-release: .venv
