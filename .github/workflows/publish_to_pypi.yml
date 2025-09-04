@@ -53,6 +53,9 @@ jobs:
           override: true
           components: rustfmt, clippy
 
+      - name: 👀 Display MakeFile content
+        run: cat MakeFile
+
       - name: Run lints and tests
         # This now runs in the correct directory due to the 'defaults' key above
         run: |
