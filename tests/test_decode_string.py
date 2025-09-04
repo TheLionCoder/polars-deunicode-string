@@ -9,10 +9,7 @@ def test_decode_string():
             "city": ["Bogotá", "Tunja", "Medellín", "Nariño"],
         }
     )
-    result = df.select([
-       deunicode.decode_string(pl.col(pl.String))
-    ])
-
+    result = df.select([deunicode.decode_string(pl.col(pl.String))])
 
     expected_df = pl.DataFrame(
         {
