@@ -20,26 +20,21 @@ permissions:
 jobs:
   linux_tests:
     runs-on: ubuntu-22.04
+    # Runs tests inside a container to bypass the GitHub Actions incident
+    container: python:3.12-slim
     strategy:
       matrix:
-        # NOTE: Python 3.12 should be tested if it's used for builds.
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.12"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          # Using a 2024 toolchain for better compatibility with modern Python/Rust
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
+      - name: Install Rust and Make inside the container
+        run: |
+          apt-get update
+          apt-get install -y curl build-essential
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install, Lint, and Test
         run: |
@@ -47,19 +42,41 @@ jobs:
           make pre-commit
           make test
 
-  build_wheels:
+  # +++ ADD THIS NEW JOB FOR LINUX WHEELS +++
+  # This job will work during the GitHub incident.
+  build_wheels_linux:
+    name: Build wheels on Linux for ${{ matrix.target }}
+    runs-on: ubuntu-22.04
+    needs: [linux_tests]
+    strategy:
+      matrix:
+        target: [x86_64, i686]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          args: --release --out dist
+          manylinux: auto
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.target }}
+          path: dist
+
+  # +++ ADD THIS NEW JOB FOR WINDOWS AND MACOS +++
+  # This job will likely fail until the incident is over.
+  build_wheels_native:
     name: Build wheels on ${{ matrix.os }} for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     needs: [linux_tests]
     strategy:
       matrix:
         include:
-          - os: ubuntu-22.04
-            target: x86_64
-            manylinux: auto
-          - os: ubuntu-22.04
-            target: i686
-            manylinux: auto
           - os: windows-latest
             target: x64
           - os: windows-latest
@@ -75,7 +92,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # UPDATING to the latest stable Python version
           python-version: "3.12"
           architecture: ${{ matrix.target }}
 
@@ -85,7 +101,6 @@ jobs:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
           sccache: "true"
-          manylinux: ${{ matrix.manylinux || 'auto' }}
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -116,7 +131,8 @@ jobs:
   release:
     name: Release to PyPI
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [build_wheels, build_sdist]
+    # UPDATED to depend on the new build jobs
+    needs: [build_wheels_linux, build_wheels_native, build_sdist]
     runs-on: ubuntu-22.04
     environment: pypi
     permissions:
