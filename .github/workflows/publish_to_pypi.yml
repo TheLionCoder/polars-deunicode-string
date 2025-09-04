@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
+        # NOTE: Python 3.12 should be tested if it's used for builds.
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
@@ -35,7 +36,8 @@ jobs:
       - name: Set up Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          toolchain: nightly-2025-08-01
+          # Using a 2024 toolchain for better compatibility with modern Python/Rust
+          toolchain: stable
           override: true
           components: rustfmt, clippy
 
@@ -73,7 +75,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11" # 🐍 UPDATED to a supported version
+          # UPDATING to the latest stable Python version
+          python-version: "3.12"
           architecture: ${{ matrix.target }}
 
       - name: Build wheels
