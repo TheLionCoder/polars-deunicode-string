@@ -1,4 +1,4 @@
-name: "Build, Test & Release"
+name: CI
 
 on:
   push:
@@ -12,135 +12,139 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
+
   cancel-in-progress: true
 
 permissions:
   contents: read
 
+# Make sure CI fails on all warnings, including Clippy lints
+env:
+  RUSTFLAGS: "-Dwarnings"
+
 jobs:
   linux_tests:
-    runs-on: ubuntu-22.04
-    # Runs tests inside a container to bypass the GitHub Actions incident
-    container: python:3.12-slim
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12"]
+        target: [x86_64]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
-      - name: Install Rust and Make inside the container
-        run: |
-          apt-get update
-          apt-get install -y curl build-essential
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Set up Rust
+        run: rustup show
+      - uses: mozilla-actions/sccache-action@v0.0.3
+      - run: make .venv
+      - run: make pre-commit
+      - run: make install
+      - run: make test
 
-      - name: Install, Lint, and Test
-        run: |
-          make install
-          make pre-commit
-          make test
-
-  # +++ ADD THIS NEW JOB FOR LINUX WHEELS +++
-  # This job will work during the GitHub incident.
-  build_wheels_linux:
-    name: Build wheels on Linux for ${{ matrix.target }}
-    runs-on: ubuntu-22.04
-    needs: [linux_tests]
+  linux:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [x86_64, i686]
+        target: [x86_64, x86]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist
-          manylinux: auto
 
+          args: --release --out dist --find-interpreter
+          sccache: "true"
+          manylinux: auto
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: wheels-linux-${{ matrix.target }}
+          name: wheels
           path: dist
 
-  # +++ ADD THIS NEW JOB FOR WINDOWS AND MACOS +++
-  # This job will likely fail until the incident is over.
-  build_wheels_native:
-    name: Build wheels on ${{ matrix.os }} for ${{ matrix.target }}
-    runs-on: ${{ matrix.os }}
-    needs: [linux_tests]
+  windows:
+    runs-on: windows-latest
     strategy:
       matrix:
-        include:
-          - os: windows-latest
-            target: x64
-          - os: windows-latest
-            target: x86
+        target: [x64]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.10"
+
           architecture: ${{ matrix.target }}
 
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
+
           args: --release --out dist --find-interpreter
           sccache: "true"
-
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: wheels-${{ matrix.os }}-${{ matrix.target }}
+          name: wheels
           path: dist
 
-  build_sdist:
-    name: Build source distribution
-    runs-on: ubuntu-22.04
-    needs: [linux_tests]
+  macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [x86_64, aarch64]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
 
+          args: --release --out dist --find-interpreter
+          sccache: "true"
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+  sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
           command: sdist
           args: --out dist
-
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: sdist
+          name: wheels
           path: dist
 
   release:
-    name: Release to PyPI
+    name: Release
     if: "startsWith(github.ref, 'refs/tags/')"
-    # UPDATED to depend on the new build jobs
-    needs: [build_wheels_linux, build_wheels_native, build_sdist]
-    runs-on: ubuntu-22.04
+    needs: [linux, windows, macos, sdist]
+    runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write
+      id-token: write # IMPORTANT: mandatory for trusted publishing
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
         with:
-          path: dist
-
+          name: wheels
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
         with:
           command: upload
-          args: --non-interactive --skip-existing dist/*/*
+          args: --non-interactive --skip-existing *
