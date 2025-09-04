@@ -56,9 +56,8 @@ jobs:
       - name: Run lints and tests
         # This now runs in the correct directory due to the 'defaults' key above
         run: |
-          make .venv
-          make pre-commit
           make install
+          make pre-commit
           make test
 
   build_wheels:
