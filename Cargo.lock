@@ -821,7 +821,7 @@ dependencies = [
 
 [[package]]
 name = "polars-deunicode-string"
-version = "0.2.2"
+version = "0.2.6"
 dependencies = [
  "deunicode",
  "polars",

@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 authors = [{ name = "Orlando Reyes", email = "eorlando.reyesruiz@gmail.com" }]
 name = "polars-deunicode-string"
-version = "0.2.5"
+version = "0.2.6"
 description = "Polars plugin to decode strings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -25,6 +25,7 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/TheLionCoder/polars-deunicode-string"
+"Repository" = "https://github.com/TheLionCoder/polars-deunicode-string"
 
 [tool.maturin]
 module-name = "polars_deunicode_string._internal"
@@ -33,3 +34,4 @@ include = ["README.md", "LICENSE"]
 [[tool.mypy.overrides]]
 module = "polars.utils.udfs"
 ignore_missing_imports = true
+
