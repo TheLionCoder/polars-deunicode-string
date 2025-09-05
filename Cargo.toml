@@ -2,7 +2,7 @@
 authors = ["Orlando Reyes <eorlando.reyesruiz@gmail.com>"]
 repository = "https://github.com/TheLionCoder/polars-deunicode-string"
 name = "polars-deunicode-string"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 
 [lib]
